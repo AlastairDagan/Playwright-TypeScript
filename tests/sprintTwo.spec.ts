@@ -96,7 +96,7 @@ test.describe('Search Functionality', () => {
 
         const rCards = await page.locator('img.card-img-top');
         const count = await rCards.count();
-        console.log(count)
+        // console.log(count)
 
         const relatedItemsList: any = [];
 
@@ -105,7 +105,7 @@ test.describe('Search Functionality', () => {
             relatedItemsList.push(text?.trim());
         };
 
-        console.log(relatedItemsList)
+        // console.log(relatedItemsList)
 
         for(const el of relatedItemsList){
             // image elements don't have visible text; assert against the alt attribute
@@ -160,6 +160,17 @@ test.describe('Search Functionality', () => {
 });
 
 test.describe('Filtering by Category', () => {
+    const categories = {
+            'Hand Tools': [
+                'Hammer', 'Hand Saw', 'Wrench', 'Screwdriver', 'Pliers', 'Chisels', 'Measures'
+            ],
+            'Power Tools': [
+                'Grinder', 'Sander', 'Saw', 'Drill'
+            ],
+            'Other': [
+                'Tool Belts', 'Storage Solutions', 'Workbench', 'Safety Gear', 'Fasteners'
+            ]
+        };
     test.beforeEach(async ({ page }) =>{
         // Navigate to Page
         await page.goto('https://practicesoftwaretesting.com/');
@@ -181,19 +192,78 @@ test.describe('Filtering by Category', () => {
     test('AC11 - Hierarchical Categories', async ({ page }) => {
         // Given the category filter is displayed
         // Then categories are shown in a tree structure with parent and child categories. 
+
+        const categories = {
+            'Hand Tools': [
+                'Hammer', 'Hand Saw', 'Wrench', 'Screwdriver', 'Pliers', 'Chisels', 'Measures'
+            ],
+            'Power Tools': [
+                'Grinder', 'Sander', 'Saw', 'Drill'
+            ],
+            'Other': [
+                'Tool Belts', 'Storage Solutions', 'Workbench', 'Safety Gear', 'Fasteners'
+            ]
+        };
+
+        for (const [parent, children] of Object.entries(categories)) {
+            const parentLocator = page.locator('label').getByText(parent);
+            await expect(parentLocator).toBeVisible();
+
+            for (const child of children) {
+                const childLocator = page.locator('label').getByText(child, {exact: true});
+                await expect(childLocator).toContainText(child);
+                await expect(childLocator).toBeVisible();
+            }
+        };
     });
 
     test('AC12 - Selecting a parent category', async ({ page }) => {
         // Given a parent category has child categories
         // When I check the parent category checkbox
         // Then all child category checkboxes are also checked
-        // And the product grid updates to show products from all those categories. 
+        // And the product grid updates to show products from all those categories.
+        
+        for(const [parent, children] of Object.entries(categories)){
+            const parentLocator = page.locator('label').getByText(parent);
+            await expect(parentLocator).toBeVisible();
+
+            if(parent == 'Hand Tools'){
+                await parentLocator.check();
+
+                for(const child of children){
+                    const childLocator = page.locator('label').getByText(child, {exact: true});
+                    await expect(childLocator).toContainText(child);
+                    await expect(childLocator).toBeChecked();
+                }
+            } else {
+                break;
+            };
+        }
     });
 
     test('AC13 - Deselecting child categories', async ({ page }) => {
         // Given all child categories of a parent are checked
         // When I uncheck all child category checkboxes
-        // Then the parent category checkbox is also unchecked. 
-        // test?
+        // Then the parent category checkbox is also unchecked.
+
+        for(const [parent, children] of Object.entries(categories)){
+            const parentLocator = page.locator('label').getByText(parent);
+            await expect(parentLocator).toBeVisible();
+
+            if(parent == 'Hand Tools'){
+                await parentLocator.check();
+
+                for(const child of children){
+                    const childLocator = page.locator('label').getByText(child, {exact: true});
+                    await expect(childLocator).toContainText(child);
+                    await childLocator.uncheck();
+                    await expect(childLocator).not.toBeChecked();
+                }
+            } else {
+                break;
+            };
+
+            await expect(parentLocator).not.toBeChecked();
+        }
     })
 });
