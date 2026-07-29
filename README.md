@@ -1,4 +1,4 @@
-# Playwright TypeScript Automation Suite
+# Playwright TypeScript Automation Study
 
 This repository contains end-to-end browser automation tests written with Playwright and TypeScript for the Practice Software Testing demo application.
 
