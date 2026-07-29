@@ -267,3 +267,117 @@ test.describe('Filtering by Category', () => {
         }
     })
 });
+
+
+test.describe('Filtering by Brand', () => {
+    test.beforeEach('Before Hook', async ({ page }) => {
+        // Navigate to Page
+        await page.goto('https://practicesoftwaretesting.com/');
+        // Confirm Title is present and correct
+        await expect(page).toHaveTitle(/Practice Software Testing - Toolshop - v5.0/);
+        //confirms user is on homepage
+        await expect(page.getByRole('link', { name: 'Practice Software Testing -' })).toBeVisible(); 
+    });
+
+    test('AC14 - Brand Filter is displayed', async ({ page }) => {
+        // Given I am on the product overview page
+        // Then a list of brand checkboxes is displayed in the sidebar.
+
+        await expect(page.getByRole('heading', { name: 'By brand:' })).toBeVisible();
+        await expect(page.getByText('ForgeFlex Tools')).toBeVisible();
+        await expect(page.getByText('MightyCraft Hardware')).toBeVisible();
+
+    });
+
+    test('AC15 - Selecting a brand', async ({ page }) => {
+        // Given the brand filter is displayed
+        // When I check one or more brand checkboxes
+        // Then the product grid updates to show only products from the selected brands.
+
+        let brand = await page.getByText('MightyCraft Hardware');
+        await expect(brand).toBeVisible();
+        brand.click();
+
+        //TODO: Find a clean, maintainable way to confirm the grid updates as expected.
+
+    });
+
+    test('AC16 - Combining filters', async ({ page}) => {
+        // Given I have selected one or more categories
+        // When I also select one or more brands
+        // Then the product grid shows only products matching both the selected categories and brands. 
+
+        let brand = await page.getByText('MightyCraft Hardware');
+        await expect(brand).toBeVisible();
+        brand.click();
+
+        let hammer = await page.locator('label', {hasText: 'Hammer'});
+        await expect(hammer).toBeVisible();
+        hammer.click();
+
+    
+        let card = await page.getByAltText('Claw Hammer', {exact: true});
+        await expect(card).toBeVisible();
+        await card.click();
+
+        await expect(page.locator('span', {hasText: 'Hammer'})).toBeVisible();
+        await expect(page.locator('span', {hasText: 'MightyCraft Hardware'})).toBeVisible();
+
+    });
+});
+
+test.describe('Sorting', () => {
+    test.beforeEach('Before Hook', async ({ page }) => {
+        // Navigate to Page
+        await page.goto('https://practicesoftwaretesting.com/');
+
+        // Wait for elements to load before executing any tests
+        await page.waitForLoadState('load')
+
+        // Confirm Title is present and correct
+        await expect(page).toHaveTitle(/Practice Software Testing - Toolshop - v5.0/);
+
+        //confirms user is on homepage
+        await expect(page.getByRole('link', { name: 'Practice Software Testing -' })).toBeVisible(); 
+    });
+
+    test('AC17 - Sort dropdown is displayed', async ({ page }) => {
+        // Given I am on the product overview page
+        // Then a sorting dropdown is displayed.
+
+        await expect(page.getByRole('heading', { name: 'Sort' })).toBeVisible();
+        await expect(page.getByTestId('sort')).toBeVisible();
+    })
+
+    test('AC18 - Sort options', async ({ page }) => {
+        // Given the sort dropdown is displayed
+        // Then it includes the following options:
+        //     Name (A - Z)
+        //     Name (Z - A)
+        //     Price (High - Low)
+        //     Price (Low - High)
+
+        const dropdownList = page.locator('.form-select > option');
+        await expect(dropdownList).toHaveText(['', "Name (A - Z)", "Name (Z - A)",
+            'Price (High - Low)', 'Price (Low - High)', 'CO₂ Rating (A - E)', 'CO₂ Rating (E - A)'
+        ]);
+    })
+
+    test('AC19 - Applying a sort', async ({ page }) => {
+        // Given I select a sort option
+        // Then the product grid reloads with products ordered according to the selected sort. 
+        await page.getByTestId('sort').selectOption('price,desc');
+        await expect(page).toHaveScreenshot('Sorted-by-desc-price.png');
+    });
+
+    test.afterAll('Close browser/Teardown', async ({ page }) => {
+        await page.close();
+    })
+});
+    
+    
+
+    
+
+    
+
