@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { HomePage } from '../lib/pages/homepage';
 
 test.describe('Sprint 2 - Pagination', () => {
     test.beforeEach(async ({ page }) =>{
@@ -328,17 +329,9 @@ test.describe('Filtering by Brand', () => {
 
 test.describe('Sorting', () => {
     test.beforeEach('Before Hook', async ({ page }) => {
-        // Navigate to Page
-        await page.goto('https://practicesoftwaretesting.com/');
-
-        // Wait for elements to load before executing any tests
-        await page.waitForLoadState('load')
-
-        // Confirm Title is present and correct
-        await expect(page).toHaveTitle(/Practice Software Testing - Toolshop - v5.0/);
-
-        //confirms user is on homepage
-        await expect(page.getByRole('link', { name: 'Practice Software Testing -' })).toBeVisible(); 
+        const homePageLoad = new HomePage(page);
+        await homePageLoad.goto();
+        await homePageLoad.confirmPageLoaded();
     });
 
     test('AC17 - Sort dropdown is displayed', async ({ page }) => {
